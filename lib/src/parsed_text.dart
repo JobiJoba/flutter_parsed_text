@@ -94,28 +94,12 @@ class ParsedText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Seperate each word and create a new Array
-    String newString = text;
-
-    Map<String, MatchText> _mapping = Map<String, MatchText>();
-
-    parse.forEach((e) {
-      if (e.type == ParsedType.EMAIL) {
-        _mapping[emailPattern] = e;
-      } else if (e.type == ParsedType.PHONE) {
-        _mapping[phonePattern] = e;
-      } else if (e.type == ParsedType.URL) {
-        _mapping[urlPattern] = e;
-      } else {
-        _mapping[e.pattern!] = e;
-      }
-    });
-
+    Map<String, MatchText> _mapping = _buildMapping();
     final pattern = '(${_mapping.keys.toList().join('|')})';
 
     List<InlineSpan> widgets = [];
 
-    newString.splitMapJoin(
+    text.splitMapJoin(
       RegExp(
         pattern,
         multiLine: regexOptions.multiLine,
@@ -145,7 +129,7 @@ class ParsedText extends StatelessWidget {
         if (mapping != null) {
           if (mapping.renderText != null) {
             Map<String, String> result =
-                mapping.renderText!(str: matchText, pattern: pattern);
+                mapping.renderText!(str: matchText, pattern: mapping.pattern!);
 
             widget = TextSpan(
               text: "${result['display']}",
@@ -221,5 +205,23 @@ class ParsedText extends StatelessWidget {
         style: style,
       ),
     );
+  }
+
+  _buildMapping() {
+    final Map<String, MatchText> _mapping = {};
+
+    for (MatchText matchText in parse) {
+      if (matchText.type == ParsedType.EMAIL) {
+        _mapping[emailPattern] = matchText;
+      } else if (matchText.type == ParsedType.PHONE) {
+        _mapping[phonePattern] = matchText;
+      } else if (matchText.type == ParsedType.URL) {
+        _mapping[urlPattern] = matchText;
+      } else {
+        _mapping[matchText.pattern!] = matchText;
+      }
+    }
+
+    return _mapping;
   }
 }

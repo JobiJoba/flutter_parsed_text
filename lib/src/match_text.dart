@@ -48,4 +48,9 @@ class MatchText {
     this.renderText,
     this.renderWidget,
   });
+
+  @override
+  String toString() {
+    return "{ pattern: $pattern , type: $type }";
+  }
 }
